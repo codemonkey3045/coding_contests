@@ -1,0 +1,85 @@
+__author__ = 'codemonkey3045'
+
+nGames = int(raw_input())
+
+def segment(li):
+	start = 0
+	length = 0
+	segments = []
+	for ind, c in enumerate(li):
+		if c == 'X':
+			s = [length, start, start + length-1, 'A']
+			segments.append(s)
+			start = ind + 1
+			length = 0
+		elif ind == len(li)-1:
+			t = [length+1, start, start + length, 'A']
+			segments.append(t)
+			start = ind + 1
+			length = 0
+		else:
+			length = length + 1
+		# print "ind %d had start %d and length %d" % (ind, start, length)
+	return segments
+
+def removeEmptySegments(s):
+	rets = []
+
+	for tup in s:
+		if tup[0] == 0:
+			tup[3] = 'REMOVE'
+
+	for tup in s:
+		if tup[3] != 'REMOVE':
+			rets.append(tup)
+
+	return rets
+
+def removeGuards(s1, other):
+	rets = []
+	for tup in s1:
+		# print tup
+		if tup[0] == 1:
+			# print "single"
+			for o in other:
+				if tup[1] >= o[1] and tup[2] <= o[2] and o[3] == 'A':
+					# print "useless guard"
+					o[3] = 'T'
+					tup[3] = 'REMOVE'
+				# else:
+					# print "useful"
+	for tup in s1:
+		if tup[3] != 'REMOVE':
+			rets.append(tup)
+	return rets
+
+def solve(col, l1, l2):
+	r1 = list(l1)
+	r1s = segment(r1)
+
+	r2 = list(l2)
+	r2s = segment(r2)
+
+	r1s = removeEmptySegments(r1s)
+	r2s = removeEmptySegments(r2s)
+
+	# print "\ncheck me\n%s\n%s\n" % (r1s, r2s)
+	# start squashing guards covered by other row
+	r1s = removeGuards(r1s, r2s)
+	r2s = removeGuards(r2s, r1s)
+
+	return len(r1s) + len(r2s)
+
+counter = 0
+for game in range(0, nGames):
+	counter = counter + 1
+	columns = raw_input()
+	line1 = raw_input()
+	line2 = raw_input()
+	# print "Case #%d: \n%s\n%s\n" % (counter, line1, line2) 
+	nGuards = solve(columns, line1, line2)
+	# print "Case #%d: %d\n%s\n%s\n" % (counter, nGuards, line1, line2) 
+	print "Case #%d: %d" % (counter, nGuards)
+
+
+
